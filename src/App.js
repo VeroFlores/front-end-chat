@@ -16,7 +16,7 @@ import {
 import SendIcon from "@material-ui/icons/Send";
 import { makeStyles } from "@material-ui/core/styles";
 import "./App.css";
-import { IndeterminateCheckBox } from "@material-ui/icons";
+
 
 const useStyles = makeStyles({
   table: {
@@ -48,16 +48,17 @@ function App() {
 
   useEffect(() => {
     const socket = new WebSocket("ws://10.13.8.99:8000/ws/chat/elfolibre/");
+
     socket.onopen = () => {
-      
+      console.log(isClicked);
       if(isClicked){
         console.log("is connected");
         const data = {
           message : message,
-          date : Date.now,
-          user : 'Vero'
+          date : new Date(),
+          user : 1
         }
-        socket.send(message);
+        socket.send(JSON.stringify(data));
       }
       
     };
@@ -76,6 +77,7 @@ function App() {
     // return () => {
     //   cleanup
     // }
+  
   }, [isClicked, message])
   const handleText = (event) => {
     setmessage(event.target.value);
