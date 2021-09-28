@@ -45,20 +45,15 @@ function App() {
   const [isClicked, setisClicked] = useState(false);
 
   
+  const socket = new WebSocket("ws://10.13.8.99:8000/ws/chat/elfolibre/");
 
   useEffect(() => {
-    const socket = new WebSocket("ws://10.13.8.99:8000/ws/chat/elfolibre/");
-
+    
     socket.onopen = () => {
-      console.log(isClicked);
+      console.log('hola');
       if(isClicked){
         console.log("is connected");
-        const data = {
-          message : message,
-          date : new Date(),
-          user : 1
-        }
-        socket.send(JSON.stringify(data));
+
       }
       
     };
@@ -78,7 +73,7 @@ function App() {
     //   cleanup
     // }
   
-  }, [isClicked, message])
+  }, [isClicked, socket])
   const handleText = (event) => {
     setmessage(event.target.value);
   }
@@ -87,6 +82,12 @@ function App() {
     // Listen for messages
     setisClicked(true);
     setmessages([...messages,message]);
+    const data = {
+      message : message,
+      date : new Date(),
+      user : 1
+    }
+    socket.send(JSON.stringify(data));
   };
   console.log(messages);
   return (
