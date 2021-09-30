@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef } from "react";
 import {
   Grid,
   Typography,
@@ -25,6 +25,7 @@ const useStyles = makeStyles({
   chatSection: {
     width: "100%",
     height: "80vh",
+    boxShadow:"none"
   },
   headBG: {
     backgroundColor: "#e0e0e0",
@@ -43,53 +44,36 @@ function App() {
   const [message, setmessage] = useState("");
   const [messages, setmessages] = useState([]);
   const [isClicked, setisClicked] = useState(false);
-
-  
-  const socket = new WebSocket("ws://10.13.8.99:8000/ws/chat/elfolibre/");
+  const ws = useRef(null);
 
   useEffect(() => {
-    
-    socket.onopen = () => {
-      console.log('hola');
-      if(isClicked){
-        console.log("is connected");
-
-      }
-      
-    };
+    ws.current =  new WebSocket("ws://127.0.0.1:8000/ws/chat/elfolibre/");
+    ws.current.onerror = e => console.log('Web socket error!');
+		ws.current.onmessage = e => {
+			const msg = JSON.parse(e.data);
+      console.log('msg',msg);
+      setmessages([...messages,msg.server_message]);
+		};
+    return () => ws.current.close();
+  }, [messages]);
   
-    socket.onmessage = (message) => {
-      console.log('here',message);
-    };
-  
-    // socket.addEventListener("open", function (event) {
-    //   socket.send("Hello Server!");
-    // });
-
-    // socket.addEventListener("message", function (event) {
-    //   console.log("Message from server ", event.data);
-    // });
-    // return () => {
-    //   cleanup
-    // }
-  
-  }, [isClicked, socket])
   const handleText = (event) => {
     setmessage(event.target.value);
   }
-  // Connection opened
+
   const handleSendMessage = () => {
     // Listen for messages
     setisClicked(true);
-    setmessages([...messages,message]);
-    const data = {
-      message : message,
-      date : new Date(),
-      user : 1
-    }
-    socket.send(JSON.stringify(data));
+   
+        const data = {
+          message : message,
+          date : new Date(),
+          user : 1,
+          negotiation_id : 1
+        }
+        ws.current.send(JSON.stringify(data));
   };
-  console.log(messages);
+
   return (
     <div>
       <Grid container>
@@ -102,7 +86,7 @@ function App() {
       <Grid container component={Paper} className={classes.chatSection}>
         <Grid item xs={3} className={classes.borderRight500}>
           <List>
-            <ListItem button key="RemySharp">
+            <ListItem button key="Jhon Wick">
               <ListItemIcon>
                 <Avatar
                   alt="Remy Sharp"
